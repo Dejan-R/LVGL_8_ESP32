@@ -1,0 +1,8 @@
+CMake Error at main/CMakeLists.txt:11 (target_compile_definitions):
+  target_compile_definitions may only set INTERFACE properties on INTERFACE
+  targets
+
+
+SOURCES contents: touch_driver.c;xpt2046.c;tp_spi.c
+SOURCES contents: disp_driver.c;ili9488.c;disp_spi.c
+ninja: error: rebuilding 'build.ninja': subcommand failed

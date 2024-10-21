@@ -1,0 +1,2 @@
+SOURCES contents: touch_driver.c;xpt2046.c;tp_spi.c
+SOURCES contents: disp_driver.c;ili9488.c;disp_spi.c

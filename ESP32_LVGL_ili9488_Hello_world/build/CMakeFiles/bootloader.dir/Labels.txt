@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+C:/Users/dejan/Desktop/ESP32_LVGL_ili9488_Hello_world/build/CMakeFiles/bootloader
+C:/Users/dejan/Desktop/ESP32_LVGL_ili9488_Hello_world/build/CMakeFiles/bootloader.rule
+C:/Users/dejan/Desktop/ESP32_LVGL_ili9488_Hello_world/build/CMakeFiles/bootloader-complete.rule
+C:/Users/dejan/Desktop/ESP32_LVGL_ili9488_Hello_world/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+C:/Users/dejan/Desktop/ESP32_LVGL_ili9488_Hello_world/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+C:/Users/dejan/Desktop/ESP32_LVGL_ili9488_Hello_world/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+C:/Users/dejan/Desktop/ESP32_LVGL_ili9488_Hello_world/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+C:/Users/dejan/Desktop/ESP32_LVGL_ili9488_Hello_world/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+C:/Users/dejan/Desktop/ESP32_LVGL_ili9488_Hello_world/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+C:/Users/dejan/Desktop/ESP32_LVGL_ili9488_Hello_world/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule
