@@ -13,38 +13,73 @@
 #include "lvgl_helpers.h"
 #include "LVGL/logo.h"
 
-const int LED_pin = 0; 
-int pwm_value_r = 0;  // Crvena komponenta
-int pwm_value_g = 0;  // Zelena komponenta
-int pwm_value_b = 0;  // Plava komponenta
-
 lv_obj_t *screen1;  
 lv_obj_t *screen2;
 lv_meter_indicator_t * indic;
 lv_obj_t* meter;
-SemaphoreHandle_t xGuiSemaphore; 
+
+SemaphoreHandle_t xGuiSemaphore;  //semafor za GUI
+extern QueueHandle_t led_queue;  //Queue-a za prijenos GPIO (LED) podataka
+extern QueueHandle_t adc_queue; //Queue za prijenos ADC podataka
+extern QueueHandle_t pwm_queue; //Queue za prijenos PWM podataka
+
 
 #define TAG "LVGL_primjer"
 #define LV_TICK_PERIOD_MS 10
 
 static void lv_tick_task(void *arg);
 
-// Vanjski Queue definiran u main.c
-extern QueueHandle_t adc_queue;
 
 //Ažuriranje  kazaljke za ADC
 void update_meter_value(int adc_value) {
-if (indic== NULL) {
-    // Labela nije kreirana
-    return;
-}
+  if (meter == NULL || indic == NULL) {
+        return;
+    }
     if (adc_value < 0) {
         adc_value = 0; 
     } else if (adc_value > 4095) {
         adc_value = 4095; 
     }
-
       lv_meter_set_indicator_value(meter, indic, adc_value);  
+}
+
+
+/* Callback f-ja za GUMB */
+static void btn_event_cb(lv_event_t *e) {
+    lv_obj_t *btn = lv_event_get_target(e);
+    if (lv_event_get_code(e) == LV_EVENT_CLICKED) {
+        // Provjera trenutne boje i ažuriranje stanja
+        bool new_state = (lv_obj_get_style_bg_color(btn, 0).full == lv_color_hex(0x808080).full);
+        lv_obj_set_style_bg_color(btn, new_state ? lv_color_hex(0x007300) : lv_color_hex(0x808080), 0);
+
+        // Slanje novog stanja za LED u Queue
+        xQueueSend(led_queue, &new_state, portMAX_DELAY);
+    }
+}
+
+
+/* Callback f-ja za slidere */
+static void slider_event_cb(lv_event_t *e) {
+    lv_obj_t *slider = lv_event_get_target(e);
+    int value = lv_slider_get_value(slider); // Dohvati trenutnu vrijednost slidera
+    static pwm_data_t pwm_data;  
+
+    // Provjeri koji slider je pozvao callback
+    int slider_id = (int)lv_event_get_user_data(e);
+
+    switch (slider_id) {
+        case 0:
+            pwm_data.red = value; // Ažuriraj crvenu komponentu
+            break;
+        case 1:
+            pwm_data.green = value; // Ažuriraj zelenu komponentu
+            break;
+        case 2:
+            pwm_data.blue = value; // Ažuriraj plavu komponentu
+            break;
+    }
+    //Šalje nove PWM vrijednosti u Queue
+    xQueueSend(pwm_queue, &pwm_data, portMAX_DELAY);
 }
 
 
@@ -57,23 +92,6 @@ static void lv_tick_task(void *arg)
     lv_tick_inc(LV_TICK_PERIOD_MS);
 }
 
-void update_pwm(); 
-
-/* Callback f-ja za GUMB */
-static void btn_event_cb(lv_event_t *e) {
-       lv_obj_t * btn = lv_event_get_target(e);
-    // Provjera je li gumb pritisnut
-    if (lv_event_get_code(e) == LV_EVENT_CLICKED) {
-        // Promijeni boju ovisno o trenutnom stanju gumba
-        if (lv_obj_get_style_bg_color(btn, 0).full == lv_color_hex(0x808080).full) {
-            lv_obj_set_style_bg_color(btn, lv_color_hex(0x007300), 0); //zelena boja (uključeno)
-             gpio_set_level(LED_pin, 1); 
-        } else {
-            lv_obj_set_style_bg_color(btn, lv_color_hex(0x808080), 0); // siva boja (isključeno)
-            gpio_set_level(LED_pin, 0);  
-        }
-    }
-}
 
 /* Callback f-je za ekrane */
 void btn1_event_cb(lv_event_t *e) {
@@ -85,28 +103,7 @@ void btn2_event_cb(lv_event_t *e) {
     lv_obj_invalidate(screen1);  // Osigurava osvježavanje
 }
 
-/* Callback funkcija za slidere*/
-static void slider_event_cb(lv_event_t *e) {
-    lv_obj_t *slider = lv_event_get_target(e);
-    int value = lv_slider_get_value(slider); // Dohvati trenutnu vrijednost slidera
 
-    // Provjeri koji slider je pozvao callback
-    int slider_id = (int)lv_event_get_user_data(e);
-
-    switch (slider_id) {
-        case 0:
-            pwm_value_r = value; // Ažuriraj crvenu komponentu
-            break;
-        case 1:
-            pwm_value_g = value; // Ažuriraj zelenu komponentu
-            break;
-        case 2:
-            pwm_value_b = value; // Ažuriraj plavu komponentu
-            break;
-    }
-
-    update_pwm(); // Ažuriraj PWM izlaz
-}
 
 
 /*f-ja xpt2046_read vraća bool, a LVGL očekuje void povratni tip za read_cb,
@@ -114,13 +111,15 @@ stoga dodajemo wrapper funkciju koja poziva xpt2046_read i jednostavno zanemaruj
 void touch_driver_read_wrapper(lv_indev_drv_t * indev_drv, lv_indev_data_t * data) {
     // Pozovi stvarnu funkciju xpt2046_read i zanemari povratnu vrijednost
     xpt2046_read(indev_drv, data);
+        
 }
 
 
 void GUI_task(void *pvParameter) {
     
     (void) pvParameter;
-    xGuiSemaphore = xSemaphoreCreateMutex();
+   xGuiSemaphore = xSemaphoreCreateMutex();
+
       
     // Inicijalizacija LVGL
     lv_init();
@@ -144,7 +143,6 @@ void GUI_task(void *pvParameter) {
     lv_disp_drv_register(&disp_drv);
 
     // Inicijalizacija 'input device driver' (touch)
-
     lv_indev_drv_t indev_drv;
     lv_indev_drv_init(&indev_drv);
      //indev_drv.read_cb = touch_driver_read;
@@ -191,22 +189,25 @@ void GUI_task(void *pvParameter) {
 
     // Gauge za ADC
     meter = lv_meter_create(screen1);
-    lv_obj_center(meter);
     lv_obj_set_size(meter, 160, 160);
-    lv_obj_set_pos(meter, 40, 40);
-    //skala
+    lv_obj_set_pos(meter, 180, 100);
+
+    // Skala
     lv_meter_scale_t * scale = lv_meter_add_scale(meter);
-    lv_meter_set_scale_range(meter, scale, 0, 4095, 265, 135);  //opseg  0-4095
-    // oznaka za početak i kraj skale
+    lv_meter_set_scale_range(meter, scale, 0, 4095, 265, 135);  // Opseg 0-4095
     lv_meter_set_scale_ticks(meter, scale, 2, 0, 0, lv_palette_main(LV_PALETTE_DEEP_ORANGE));
     lv_meter_set_scale_major_ticks(meter, scale, 1, 0, 0, lv_color_black(), 0); 
+
+    //Luk
     indic = lv_meter_add_arc(meter, scale, 5, lv_palette_main(LV_PALETTE_BLUE), -10);
     lv_meter_set_indicator_start_value(meter, indic, 0);
     lv_meter_set_indicator_end_value(meter, indic, 4095);
-    //kazaljka
+
+    // Kazaljka
     indic = lv_meter_add_needle_line(meter, scale, 4, lv_palette_main(LV_PALETTE_DEEP_ORANGE), -10);
     lv_meter_set_indicator_start_value(meter, indic, 0);
     lv_meter_set_indicator_end_value(meter, indic, 4095);
+
 
 
     lv_obj_t *label_GPIO_naslov = lv_label_create(screen1);  
@@ -310,6 +311,7 @@ void GUI_task(void *pvParameter) {
 
 
    while (1) {
+    int adc_value;
     if (xQueueReceive(adc_queue, &adc_value, portMAX_DELAY)) {
         update_meter_value(adc_value);  // Ažuriraj labelu
     }

@@ -4,20 +4,20 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "lvgl/lvgl.h"
-
 #include "freertos/queue.h"
 
-extern QueueHandle_t adc_queue; // Deklaracija vanjskog Queuea za prijenos ADC podataka
-extern int adc_value;
-void update_meter_value(int adc_value);
+// Definicija strukture za PWM podatke
+typedef struct {
+    int red;
+    int green;
+    int blue;
+} pwm_data_t;
+
+extern QueueHandle_t pwm_queue; // Deklaracija vanjskog Queue-a za PWM
+extern QueueHandle_t adc_queue; // Deklaracija vanjskog Queue-a za prijenos ADC podataka
+extern QueueHandle_t led_queue; // Deklaracija vanjskog Queue-a za GPIO toggle (LED)
 
 extern SemaphoreHandle_t xGuiSemaphore;
-extern int pwm_value_r;  // Crvena komponenta
-extern int pwm_value_g;  // Zelena komponenta
-extern int pwm_value_b;  // Plava komponenta
-extern const int LED_pin; // Deklaracija PWM varijable
-
-void set_pwm_duty(int r, int g, int b);
-void GUI_task(void *pvParameter); //inicijalizacija GUI
+void GUI_task(void *pvParameter); // inicijalizacija GUI
 
 #endif 
