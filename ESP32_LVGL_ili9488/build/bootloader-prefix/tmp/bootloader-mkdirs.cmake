@@ -5,18 +5,18 @@ cmake_minimum_required(VERSION 3.5)
 
 file(MAKE_DIRECTORY
   "C:/Users/dejan/esp/v5.3.1/esp-idf/components/bootloader/subproject"
-  "C:/Users/dejan/Desktop/ESP32_LVGL_ili9488/build/bootloader"
-  "C:/Users/dejan/Desktop/ESP32_LVGL_ili9488/build/bootloader-prefix"
-  "C:/Users/dejan/Desktop/ESP32_LVGL_ili9488/build/bootloader-prefix/tmp"
-  "C:/Users/dejan/Desktop/ESP32_LVGL_ili9488/build/bootloader-prefix/src/bootloader-stamp"
-  "C:/Users/dejan/Desktop/ESP32_LVGL_ili9488/build/bootloader-prefix/src"
-  "C:/Users/dejan/Desktop/ESP32_LVGL_ili9488/build/bootloader-prefix/src/bootloader-stamp"
+  "C:/Users/dejan/Desktop/LVGL_8_ESP32-main/ESP32_LVGL_ili9488/build/bootloader"
+  "C:/Users/dejan/Desktop/LVGL_8_ESP32-main/ESP32_LVGL_ili9488/build/bootloader-prefix"
+  "C:/Users/dejan/Desktop/LVGL_8_ESP32-main/ESP32_LVGL_ili9488/build/bootloader-prefix/tmp"
+  "C:/Users/dejan/Desktop/LVGL_8_ESP32-main/ESP32_LVGL_ili9488/build/bootloader-prefix/src/bootloader-stamp"
+  "C:/Users/dejan/Desktop/LVGL_8_ESP32-main/ESP32_LVGL_ili9488/build/bootloader-prefix/src"
+  "C:/Users/dejan/Desktop/LVGL_8_ESP32-main/ESP32_LVGL_ili9488/build/bootloader-prefix/src/bootloader-stamp"
 )
 
 set(configSubDirs )
 foreach(subDir IN LISTS configSubDirs)
-    file(MAKE_DIRECTORY "C:/Users/dejan/Desktop/ESP32_LVGL_ili9488/build/bootloader-prefix/src/bootloader-stamp/${subDir}")
+    file(MAKE_DIRECTORY "C:/Users/dejan/Desktop/LVGL_8_ESP32-main/ESP32_LVGL_ili9488/build/bootloader-prefix/src/bootloader-stamp/${subDir}")
 endforeach()
 if(cfgdir)
-  file(MAKE_DIRECTORY "C:/Users/dejan/Desktop/ESP32_LVGL_ili9488/build/bootloader-prefix/src/bootloader-stamp${cfgdir}") # cfgdir has leading slash
+  file(MAKE_DIRECTORY "C:/Users/dejan/Desktop/LVGL_8_ESP32-main/ESP32_LVGL_ili9488/build/bootloader-prefix/src/bootloader-stamp${cfgdir}") # cfgdir has leading slash
 endif()

@@ -182,7 +182,7 @@ void GUI_task(void *pvParameter) {
 
    // Naslov za ADC
     lv_obj_t *label_ADC_naslov = lv_label_create(screen1);  
-    lv_label_set_text(label_ADC_naslov, "ADC (GPIO12):");
+    lv_label_set_text(label_ADC_naslov, "ADC (GPIO36):");
     lv_obj_align(label_ADC_naslov, LV_ALIGN_CENTER, 0, -80); 
     lv_obj_set_style_text_font(label_ADC_naslov, &lv_font_montserrat_22, 0); 
     lv_obj_set_style_text_decor(label_ADC_naslov, LV_TEXT_DECOR_UNDERLINE, 0);

@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/dejan/Desktop/ESP32_LVGL_ili9488/components/lvgl_esp32_drivers
+# Install script for directory: C:/Users/dejan/Desktop/LVGL_8_ESP32-main/ESP32_LVGL_ili9488/components/lvgl_esp32_drivers
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

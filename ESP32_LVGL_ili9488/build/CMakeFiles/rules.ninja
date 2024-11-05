@@ -1839,7 +1839,7 @@ rule C_STATIC_LIBRARY_LINKER____idf_lvgl_tft_
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = C:\Users\dejan\.espressif\tools\cmake\3.24.0\bin\cmake.exe --regenerate-during-build -SC:\Users\dejan\Desktop\ESP32_LVGL_ili9488 -BC:\Users\dejan\Desktop\ESP32_LVGL_ili9488\build
+  command = C:\Users\dejan\.espressif\tools\cmake\3.24.0\bin\cmake.exe --regenerate-during-build -SC:\Users\dejan\Desktop\LVGL_8_ESP32-main\ESP32_LVGL_ili9488 -BC:\Users\dejan\Desktop\LVGL_8_ESP32-main\ESP32_LVGL_ili9488\build
   description = Re-running CMake...
   generator = 1
 

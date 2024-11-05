@@ -45,28 +45,28 @@ menuconfig: idf.py menuconfig
 #include "esp_adc/adc_oneshot.h"
 #include "esp_log.h"
 
-#define ADC2_CHAN0 ADC_CHANNEL_5  // GPIO12 = ADC2_5
+#define ADC1_CHAN0 ADC_CHANNEL_0  // GPIO36 = ADC1_0
 #define LED_pin GPIO_NUM_0  //GPIO pin za LED
 
 QueueHandle_t adc_queue; //ADC Queue
 QueueHandle_t led_queue;  //GPIO Queue
 QueueHandle_t pwm_queue; //PWM Queue
 
-adc_oneshot_unit_handle_t adc2_handle; 
+adc_oneshot_unit_handle_t adc1_handle; 
 
 //inicijalizacija i postavke za ADC
 void init_adc(void) {
-    adc_oneshot_unit_init_cfg_t init_config2 = {
-        .unit_id = ADC_UNIT_2,
+    adc_oneshot_unit_init_cfg_t init_config1 = {
+        .unit_id = ADC_UNIT_1,
         .ulp_mode = ADC_ULP_MODE_DISABLE,
     };
-    ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_config2, &adc2_handle));
+    ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_config1, &adc1_handle));
 
     adc_oneshot_chan_cfg_t config = {
         .atten = ADC_ATTEN_DB_12,
         .bitwidth = ADC_BITWIDTH_DEFAULT,
     };
-    ESP_ERROR_CHECK(adc_oneshot_config_channel(adc2_handle, ADC2_CHAN0, &config));
+    ESP_ERROR_CHECK(adc_oneshot_config_channel(adc1_handle, ADC1_CHAN0, &config));
 }
 
 //inicijalizacija i postavke za PWM
@@ -131,7 +131,7 @@ void led_task(void *pvParameter) {
 void adc_task(void *arg) {
        int adc_value;  
     while (1) {
-        adc_oneshot_read(adc2_handle, ADC2_CHAN0, &adc_value);
+        adc_oneshot_read(adc1_handle, ADC1_CHAN0, &adc_value);
 xQueueSend(adc_queue, &adc_value, portMAX_DELAY);
         vTaskDelay(100/ portTICK_PERIOD_MS); 
     }
@@ -141,7 +141,7 @@ xQueueSend(adc_queue, &adc_value, portMAX_DELAY);
     int adc_sum = 0;
 for (int i = 0; i < 10; i++) {
     int adc_value;
-    adc_oneshot_read(adc2_handle, ADC2_CHAN0, &adc_value);
+    adc_oneshot_read(adc1_handle, ADC1_CHAN0, &adc_value);
     adc_sum += adc_value;
     vTaskDelay(10 / portTICK_PERIOD_MS); // Čekajte između uzoraka
 }
